@@ -3,9 +3,9 @@ import Card from "./Card";
 
 export default function Board({ loading, characters, locations, filter, onOpen }) {
   const cards = [
-    ...characters.map((c) => ({ ...c, _type: "character" })),
-    ...locations.map((l) => ({ ...l, _type: "location" })),
-  ].filter((c) => filter === "all" || c._type === filter);
+    ...characters.map((c) => ({ type: "character", data: c })),
+    ...locations.map((l) => ({ type: "location", data: l })),
+  ].filter((c) => filter === "all" || c.type === filter);
 
   return (
     <div className="board">
@@ -20,7 +20,7 @@ export default function Board({ loading, characters, locations, filter, onOpen }
           <p>El corcho está vacío. Pincha tu primera ficha.</p>
         </div>
       ) : (
-        cards.map((card) => <Card key={card.id} card={card} type={card._type} onOpen={onOpen} />)
+        cards.map(({ type, data }) => <Card key={data.id} card={data} type={type} onOpen={onOpen} />)
       )}
     </div>
   );
