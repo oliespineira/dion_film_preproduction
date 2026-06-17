@@ -113,7 +113,7 @@ body { margin: 0; font-family: "Inter", sans-serif; }
 .modal-actions { display: flex; align-items: center; gap: 14px; margin-top: 6px; flex-wrap: wrap; }
 .btn-primary { background: var(--accent); color: var(--paper); border: none; padding: 9px 18px; border-radius: 4px; font-family: "Inter"; font-weight: 600; cursor: pointer; }
 .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
-.btn-secondary { background: none; border: 1px solid #cbb98f; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-family: "Inter"; }
+.btn-secondary { background: none; border: 1px solid #cbb98f; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-family: "Inter"; display: inline-flex; align-items: center; gap: 6px; }
 .confirm-inline { font-size: 0.85rem; color: var(--ink-soft); }
 .confirm-inline button { margin-left: 4px; background: none; border: none; color: var(--accent); cursor: pointer; text-decoration: underline; }
 
@@ -208,3 +208,4 @@ table.shotlist { min-width: 980px; }
 .day-notes { margin-top: 4px; font-size: 0.8rem; color: var(--ink-soft); font-style: italic; }
 
 .section-title { color: var(--paper); font-family: "Courier Prime", monospace; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.8px; margin: 18px 6px 0; }
+.day-header-actions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }

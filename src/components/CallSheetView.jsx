@@ -1,4 +1,5 @@
-import { Plus, ChevronUp, ChevronDown, Pencil, Loader2 } from "lucide-react";
+import { Plus, ChevronUp, ChevronDown, Pencil, Loader2, FileDown } from "lucide-react";
+import { exportCallSheetPdf } from "../utils/exportCallSheetPdf";
 
 function formatDate(d) {
   if (!d) return "";
@@ -7,6 +8,7 @@ function formatDate(d) {
 }
 
 export default function CallSheetView({
+  projectName,
   days,
   loadingDays,
   selectedDayId,
@@ -35,6 +37,25 @@ export default function CallSheetView({
   }
   function characterName(id) {
     return characters.find((c) => c.id === id)?.name;
+  }
+
+  function handleExportPdf() {
+    exportCallSheetPdf({
+      projectName,
+      day: activeDay,
+      scheduleRows: scheduleSlots.map((slot) => ({
+        time: slot.scheduled_time,
+        scene: sceneLabel(slot.scene_id),
+        notes: slot.notes,
+      })),
+      callRows: callTimes.map((c) => ({
+        time: c.call_time,
+        name: c.person_name,
+        role: c.role_type,
+        character: characterName(c.character_id) || "",
+        notes: c.notes,
+      })),
+    });
   }
 
   if (loadingDays) {
@@ -75,9 +96,14 @@ export default function CallSheetView({
               {activeDay.main_location && <span> · {activeDay.main_location}</span>}
               {activeDay.notes && <div className="day-notes">{activeDay.notes}</div>}
             </div>
-            <button className="icon-btn" onClick={() => onEditDay(activeDay)} aria-label="Editar día">
-              <Pencil size={15} />
-            </button>
+            <div className="day-header-actions">
+              <button className="btn-secondary" onClick={handleExportPdf}>
+                <FileDown size={14} /> Exportar PDF
+              </button>
+              <button className="icon-btn" onClick={() => onEditDay(activeDay)} aria-label="Editar día">
+                <Pencil size={15} />
+              </button>
+            </div>
           </div>
 
           {loadingSheet ? (

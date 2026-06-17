@@ -293,6 +293,7 @@ function MainApp() {
             />
           ) : (
             <CallSheetView
+              projectName={activeProject?.name}
               days={days}
               loadingDays={loadingDays}
               selectedDayId={selectedDayId}
