@@ -88,3 +88,23 @@ export function blankShot() {
     notes: "",
   };
 }
+
+export function blankShootDay() {
+  return {
+    day_label: "",
+    day_date: "",
+    general_call_time: "",
+    main_location: "",
+    notes: "",
+  };
+}
+
+export function blankScheduleSlot() {
+  return { scene_id: "", scheduled_time: "", notes: "" };
+}
+
+export const ROLE_TYPES = ["Actor", "Equipo técnico", "Equipo artístico"];
+
+export function blankCallTime() {
+  return { person_name: "", role_type: "Actor", character_id: "", call_time: "", notes: "" };
+}

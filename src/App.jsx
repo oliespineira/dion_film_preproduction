@@ -8,15 +8,29 @@ import Toolbar from "./components/Toolbar";
 import Board from "./components/Board";
 import BreakdownTable from "./components/BreakdownTable";
 import ShotlistView from "./components/ShotlistView";
+import CallSheetView from "./components/CallSheetView";
 import CardModal from "./components/CardModal";
 import SceneModal from "./components/SceneModal";
 import ShotModal from "./components/ShotModal";
+import ShootDayModal from "./components/ShootDayModal";
+import ScheduleSlotModal from "./components/ScheduleSlotModal";
+import CallTimeModal from "./components/CallTimeModal";
 import NewProjectModal from "./components/NewProjectModal";
 import { useProjects } from "./hooks/useProjects";
 import { useBoard } from "./hooks/useBoard";
 import { useScenes } from "./hooks/useScenes";
 import { useShots } from "./hooks/useShots";
-import { blankCharacter, blankLocation, blankScene, blankShot } from "./utils/helpers";
+import { useShootDays } from "./hooks/useShootDays";
+import { useCallSheet } from "./hooks/useCallSheet";
+import {
+  blankCharacter,
+  blankLocation,
+  blankScene,
+  blankShot,
+  blankShootDay,
+  blankScheduleSlot,
+  blankCallTime,
+} from "./utils/helpers";
 
 function MainApp() {
   const { projects, loading: loadingProjects, error: projectsError, createProject, deleteProject } = useProjects();
@@ -27,6 +41,10 @@ function MainApp() {
   const [sceneModal, setSceneModal] = useState(null); // scene object or null
   const [shotModal, setShotModal] = useState(null); // shot object or null
   const [selectedSceneId, setSelectedSceneId] = useState(null);
+  const [selectedDayId, setSelectedDayId] = useState(null);
+  const [dayModal, setDayModal] = useState(null);
+  const [slotModal, setSlotModal] = useState(null);
+  const [callTimeModal, setCallTimeModal] = useState(null);
   const [newProjectOpen, setNewProjectOpen] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -56,6 +74,21 @@ function MainApp() {
     deleteShot,
     reorder: reorderShot,
   } = useShots(selectedSceneId, activeId);
+
+  const { days, loading: loadingDays, error: daysError, saveDay, deleteDay, reorder: reorderDay } = useShootDays(activeId);
+
+  const {
+    scheduleSlots,
+    callTimes,
+    loading: loadingSheet,
+    error: sheetError,
+    saveSlot,
+    deleteSlot,
+    reorderSlot,
+    saveCallTime,
+    deleteCallTime,
+    reorderCallTime,
+  } = useCallSheet(selectedDayId, activeId);
 
   async function handleCreateProject(name) {
     const proj = await createProject(name);
@@ -132,6 +165,66 @@ function MainApp() {
     setShotModal(null);
   }
 
+  function openNewDay() {
+    setDayModal(blankShootDay());
+  }
+  function openEditDay(day) {
+    setDayModal(day);
+  }
+  async function handleSaveDay(form) {
+    const result = await saveDay(form);
+    if (result) {
+      setSaved(true);
+      setTimeout(() => setSaved(false), 1500);
+      if (!selectedDayId) setSelectedDayId(result.id);
+      setDayModal(null);
+    }
+  }
+  async function handleDeleteDay() {
+    const deletedId = dayModal.id;
+    await deleteDay(deletedId);
+    if (selectedDayId === deletedId) setSelectedDayId(null);
+    setDayModal(null);
+  }
+
+  function openNewSlot() {
+    setSlotModal(blankScheduleSlot());
+  }
+  function openEditSlot(slot) {
+    setSlotModal(slot);
+  }
+  async function handleSaveSlot(form) {
+    const result = await saveSlot(form);
+    if (result) {
+      setSaved(true);
+      setTimeout(() => setSaved(false), 1500);
+      setSlotModal(null);
+    }
+  }
+  async function handleDeleteSlot() {
+    await deleteSlot(slotModal.id);
+    setSlotModal(null);
+  }
+
+  function openNewCallTime() {
+    setCallTimeModal(blankCallTime());
+  }
+  function openEditCallTime(callTime) {
+    setCallTimeModal(callTime);
+  }
+  async function handleSaveCallTime(form) {
+    const result = await saveCallTime(form);
+    if (result) {
+      setSaved(true);
+      setTimeout(() => setSaved(false), 1500);
+      setCallTimeModal(null);
+    }
+  }
+  async function handleDeleteCallTime() {
+    await deleteCallTime(callTimeModal.id);
+    setCallTimeModal(null);
+  }
+
   const activeProject = projects.find((p) => p.id === activeId);
 
   return (
@@ -139,8 +232,8 @@ function MainApp() {
       <Header subtitle={activeProject ? "Fichas de personajes y localizaciones" : null} />
       <ProjectTabs projects={projects} activeId={activeId} onSelect={setActiveId} onNew={() => setNewProjectOpen(true)} />
 
-      {(projectsError || boardError || scenesError || shotsError) && (
-        <div className="error-banner">{projectsError || boardError || scenesError || shotsError}</div>
+      {(projectsError || boardError || scenesError || shotsError || daysError || sheetError) && (
+        <div className="error-banner">{projectsError || boardError || scenesError || shotsError || daysError || sheetError}</div>
       )}
 
       {loadingProjects ? (
@@ -187,7 +280,7 @@ function MainApp() {
               onAdd={openNewScene}
               onReorder={reorder}
             />
-          ) : (
+          ) : view === "shotlist" ? (
             <ShotlistView
               scenes={scenes}
               selectedSceneId={selectedSceneId}
@@ -197,6 +290,26 @@ function MainApp() {
               onOpen={openEditShot}
               onAdd={openNewShot}
               onReorder={reorderShot}
+            />
+          ) : (
+            <CallSheetView
+              days={days}
+              loadingDays={loadingDays}
+              selectedDayId={selectedDayId}
+              onSelectDay={setSelectedDayId}
+              onNewDay={openNewDay}
+              onEditDay={openEditDay}
+              scenes={scenes}
+              characters={characters}
+              scheduleSlots={scheduleSlots}
+              callTimes={callTimes}
+              loadingSheet={loadingSheet}
+              onAddSlot={openNewSlot}
+              onEditSlot={openEditSlot}
+              onReorderSlot={reorderSlot}
+              onAddCallTime={openNewCallTime}
+              onEditCallTime={openEditCallTime}
+              onReorderCallTime={reorderCallTime}
             />
           )}
         </>
@@ -218,6 +331,27 @@ function MainApp() {
       )}
       {shotModal && (
         <ShotModal shot={shotModal} onClose={() => setShotModal(null)} onSave={handleSaveShot} onDelete={handleDeleteShot} />
+      )}
+      {dayModal && (
+        <ShootDayModal day={dayModal} onClose={() => setDayModal(null)} onSave={handleSaveDay} onDelete={handleDeleteDay} />
+      )}
+      {slotModal && (
+        <ScheduleSlotModal
+          slot={slotModal}
+          scenes={scenes}
+          onClose={() => setSlotModal(null)}
+          onSave={handleSaveSlot}
+          onDelete={handleDeleteSlot}
+        />
+      )}
+      {callTimeModal && (
+        <CallTimeModal
+          callTime={callTimeModal}
+          characters={characters}
+          onClose={() => setCallTimeModal(null)}
+          onSave={handleSaveCallTime}
+          onDelete={handleDeleteCallTime}
+        />
       )}
     </div>
   );
