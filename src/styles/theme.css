@@ -181,3 +181,16 @@ table.breakdown td { padding: 7px 10px; vertical-align: top; }
 @media (max-width: 640px) {
   .scene-grid { grid-template-columns: 1fr; }
 }
+
+/* ---------- shotlist module ---------- */
+
+.shot-scene-picker { padding: 6px 0 14px; max-width: 480px; }
+.field-inline { display: flex; flex-direction: column; gap: 4px; }
+.field-inline > span { font-family: "Inter"; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.8px; color: var(--ink-soft); }
+
+table.shotlist { min-width: 980px; }
+
+.framing-scale { display: inline-flex; gap: 3px; align-items: center; }
+.framing-dot { width: 6px; height: 6px; border-radius: 50%; background: #d9c9a8; }
+.framing-dot.active { background: var(--accent); width: 8px; height: 8px; }
+.framing-fallback { font-size: 0.8rem; color: var(--ink-soft); }

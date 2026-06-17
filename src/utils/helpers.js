@@ -43,3 +43,48 @@ export function blankScene() {
     animals_children: "",
   };
 }
+
+// Standard Spanish shot-size scale, widest to closest.
+export const FRAMING_SCALE = [
+  "Gran Plano General",
+  "Plano General",
+  "Plano Entero",
+  "Plano Americano",
+  "Plano Medio",
+  "Primer Plano",
+  "Primerísimo Primer Plano",
+  "Plano Detalle",
+];
+
+export const ANGLE_OPTIONS = ["Normal", "Picado", "Contrapicado", "Cenital", "Nadir", "Inclinado (Dutch)"];
+
+export const MOVEMENT_OPTIONS = [
+  "Fijo",
+  "Panorámica horizontal",
+  "Panorámica vertical",
+  "Travelling",
+  "Grúa",
+  "Steadicam",
+  "Zoom in",
+  "Zoom out",
+  "Dolly",
+];
+
+export function framingIndex(value) {
+  if (!value) return -1;
+  const idx = FRAMING_SCALE.findIndex((f) => f.toLowerCase() === value.trim().toLowerCase());
+  return idx;
+}
+
+export function blankShot() {
+  return {
+    shot_number: "",
+    framing: "",
+    angle: "",
+    movement: "",
+    lens: "",
+    description: "",
+    duration_seconds: "",
+    notes: "",
+  };
+}

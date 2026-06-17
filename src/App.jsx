@@ -7,21 +7,26 @@ import ViewSwitcher from "./components/ViewSwitcher";
 import Toolbar from "./components/Toolbar";
 import Board from "./components/Board";
 import BreakdownTable from "./components/BreakdownTable";
+import ShotlistView from "./components/ShotlistView";
 import CardModal from "./components/CardModal";
 import SceneModal from "./components/SceneModal";
+import ShotModal from "./components/ShotModal";
 import NewProjectModal from "./components/NewProjectModal";
 import { useProjects } from "./hooks/useProjects";
 import { useBoard } from "./hooks/useBoard";
 import { useScenes } from "./hooks/useScenes";
-import { blankCharacter, blankLocation, blankScene } from "./utils/helpers";
+import { useShots } from "./hooks/useShots";
+import { blankCharacter, blankLocation, blankScene, blankShot } from "./utils/helpers";
 
 function MainApp() {
   const { projects, loading: loadingProjects, error: projectsError, createProject, deleteProject } = useProjects();
   const [activeId, setActiveId] = useState(null);
-  const [view, setView] = useState("board"); // "board" | "breakdown"
+  const [view, setView] = useState("board"); // "board" | "breakdown" | "shotlist"
   const [filter, setFilter] = useState("all");
   const [modal, setModal] = useState(null); // { type, card }
   const [sceneModal, setSceneModal] = useState(null); // scene object or null
+  const [shotModal, setShotModal] = useState(null); // shot object or null
+  const [selectedSceneId, setSelectedSceneId] = useState(null);
   const [newProjectOpen, setNewProjectOpen] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -42,6 +47,15 @@ function MainApp() {
   } = useBoard(activeId);
 
   const { scenes, loading: loadingScenes, error: scenesError, saveScene, deleteScene, reorder } = useScenes(activeId);
+
+  const {
+    shots,
+    loading: loadingShots,
+    error: shotsError,
+    saveShot,
+    deleteShot,
+    reorder: reorderShot,
+  } = useShots(selectedSceneId, activeId);
 
   async function handleCreateProject(name) {
     const proj = await createProject(name);
@@ -99,6 +113,25 @@ function MainApp() {
     setSceneModal(null);
   }
 
+  function openNewShot() {
+    setShotModal(blankShot());
+  }
+  function openEditShot(shot) {
+    setShotModal(shot);
+  }
+  async function handleSaveShot(form) {
+    const result = await saveShot(form);
+    if (result) {
+      setSaved(true);
+      setTimeout(() => setSaved(false), 1500);
+      setShotModal(null);
+    }
+  }
+  async function handleDeleteShot() {
+    await deleteShot(shotModal.id);
+    setShotModal(null);
+  }
+
   const activeProject = projects.find((p) => p.id === activeId);
 
   return (
@@ -106,8 +139,8 @@ function MainApp() {
       <Header subtitle={activeProject ? "Fichas de personajes y localizaciones" : null} />
       <ProjectTabs projects={projects} activeId={activeId} onSelect={setActiveId} onNew={() => setNewProjectOpen(true)} />
 
-      {(projectsError || boardError || scenesError) && (
-        <div className="error-banner">{projectsError || boardError || scenesError}</div>
+      {(projectsError || boardError || scenesError || shotsError) && (
+        <div className="error-banner">{projectsError || boardError || scenesError || shotsError}</div>
       )}
 
       {loadingProjects ? (
@@ -144,7 +177,7 @@ function MainApp() {
               )}
               <Board loading={loadingBoard} characters={characters} locations={locations} filter={filter} onOpen={openEdit} />
             </>
-          ) : (
+          ) : view === "breakdown" ? (
             <BreakdownTable
               scenes={scenes}
               loading={loadingScenes}
@@ -153,6 +186,17 @@ function MainApp() {
               onOpen={openEditScene}
               onAdd={openNewScene}
               onReorder={reorder}
+            />
+          ) : (
+            <ShotlistView
+              scenes={scenes}
+              selectedSceneId={selectedSceneId}
+              onSelectScene={setSelectedSceneId}
+              shots={shots}
+              loading={loadingShots}
+              onOpen={openEditShot}
+              onAdd={openNewShot}
+              onReorder={reorderShot}
             />
           )}
         </>
@@ -171,6 +215,9 @@ function MainApp() {
           onSave={handleSaveScene}
           onDelete={handleDeleteScene}
         />
+      )}
+      {shotModal && (
+        <ShotModal shot={shotModal} onClose={() => setShotModal(null)} onSave={handleSaveShot} onDelete={handleDeleteShot} />
       )}
     </div>
   );
