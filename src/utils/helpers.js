@@ -12,3 +12,34 @@ export function blankCharacter() {
 export function blankLocation() {
   return { name: "", physical: "", history: "", atmosphere: "" };
 }
+
+// Classic strip-board color code: Day/Ext = yellow, Day/Int = white,
+// Night/Int = blue, Night/Ext = green.
+export function stripeClassFor(intExt, dayNight) {
+  if (dayNight === "DÍA" && intExt === "EXT") return "stripe-day-ext";
+  if (dayNight === "DÍA" && intExt === "INT") return "stripe-day-int";
+  if (dayNight === "NOCHE" && intExt === "INT") return "stripe-night-int";
+  return "stripe-night-ext";
+}
+
+export function blankScene() {
+  return {
+    scene_number: "",
+    int_ext: "INT",
+    day_night: "DÍA",
+    location_id: null,
+    location_name: "",
+    description: "",
+    page_range: "",
+    eighths: "",
+    character_ids: [],
+    has_extras: false,
+    extras_notes: "",
+    wardrobe: "",
+    makeup_hair: "",
+    set_design: "",
+    props: "",
+    vehicles: "",
+    animals_children: "",
+  };
+}

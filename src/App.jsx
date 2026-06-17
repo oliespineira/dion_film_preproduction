@@ -3,19 +3,25 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import AuthScreen from "./components/AuthScreen";
 import Header from "./components/Header";
 import ProjectTabs from "./components/ProjectTabs";
+import ViewSwitcher from "./components/ViewSwitcher";
 import Toolbar from "./components/Toolbar";
 import Board from "./components/Board";
+import BreakdownTable from "./components/BreakdownTable";
 import CardModal from "./components/CardModal";
+import SceneModal from "./components/SceneModal";
 import NewProjectModal from "./components/NewProjectModal";
 import { useProjects } from "./hooks/useProjects";
 import { useBoard } from "./hooks/useBoard";
-import { blankCharacter, blankLocation } from "./utils/helpers";
+import { useScenes } from "./hooks/useScenes";
+import { blankCharacter, blankLocation, blankScene } from "./utils/helpers";
 
 function MainApp() {
   const { projects, loading: loadingProjects, error: projectsError, createProject, deleteProject } = useProjects();
   const [activeId, setActiveId] = useState(null);
+  const [view, setView] = useState("board"); // "board" | "breakdown"
   const [filter, setFilter] = useState("all");
   const [modal, setModal] = useState(null); // { type, card }
+  const [sceneModal, setSceneModal] = useState(null); // scene object or null
   const [newProjectOpen, setNewProjectOpen] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -34,6 +40,8 @@ function MainApp() {
     saveLocation,
     deleteLocation,
   } = useBoard(activeId);
+
+  const { scenes, loading: loadingScenes, error: scenesError, saveScene, deleteScene, reorder } = useScenes(activeId);
 
   async function handleCreateProject(name) {
     const proj = await createProject(name);
@@ -72,6 +80,25 @@ function MainApp() {
     setModal(null);
   }
 
+  function openNewScene() {
+    setSceneModal(blankScene());
+  }
+  function openEditScene(scene) {
+    setSceneModal(scene);
+  }
+  async function handleSaveScene(form) {
+    const result = await saveScene(form);
+    if (result) {
+      setSaved(true);
+      setTimeout(() => setSaved(false), 1500);
+      setSceneModal(null);
+    }
+  }
+  async function handleDeleteScene() {
+    await deleteScene(sceneModal.id);
+    setSceneModal(null);
+  }
+
   const activeProject = projects.find((p) => p.id === activeId);
 
   return (
@@ -79,7 +106,9 @@ function MainApp() {
       <Header subtitle={activeProject ? "Fichas de personajes y localizaciones" : null} />
       <ProjectTabs projects={projects} activeId={activeId} onSelect={setActiveId} onNew={() => setNewProjectOpen(true)} />
 
-      {(projectsError || boardError) && <div className="error-banner">{projectsError || boardError}</div>}
+      {(projectsError || boardError || scenesError) && (
+        <div className="error-banner">{projectsError || boardError || scenesError}</div>
+      )}
 
       {loadingProjects ? (
         <div className="board-empty">
@@ -94,28 +123,54 @@ function MainApp() {
         </div>
       ) : (
         <>
-          <Toolbar
-            filter={filter}
-            setFilter={setFilter}
-            onAddCharacter={() => openNew("character")}
-            onAddLocation={() => openNew("location")}
-            onDeleteProject={() => setDeleteConfirm(true)}
-            saved={saved}
-          />
-          {deleteConfirm && (
-            <div className="confirm-bar">
-              ¿Eliminar "{activeProject?.name}" y todas sus fichas?
-              <button onClick={handleDeleteProject}>Sí, eliminar</button>
-              <button onClick={() => setDeleteConfirm(false)}>Cancelar</button>
-            </div>
+          <ViewSwitcher view={view} setView={setView} />
+
+          {view === "board" ? (
+            <>
+              <Toolbar
+                filter={filter}
+                setFilter={setFilter}
+                onAddCharacter={() => openNew("character")}
+                onAddLocation={() => openNew("location")}
+                onDeleteProject={() => setDeleteConfirm(true)}
+                saved={saved}
+              />
+              {deleteConfirm && (
+                <div className="confirm-bar">
+                  ¿Eliminar "{activeProject?.name}" y todas sus fichas?
+                  <button onClick={handleDeleteProject}>Sí, eliminar</button>
+                  <button onClick={() => setDeleteConfirm(false)}>Cancelar</button>
+                </div>
+              )}
+              <Board loading={loadingBoard} characters={characters} locations={locations} filter={filter} onOpen={openEdit} />
+            </>
+          ) : (
+            <BreakdownTable
+              scenes={scenes}
+              loading={loadingScenes}
+              characters={characters}
+              locations={locations}
+              onOpen={openEditScene}
+              onAdd={openNewScene}
+              onReorder={reorder}
+            />
           )}
-          <Board loading={loadingBoard} characters={characters} locations={locations} filter={filter} onOpen={openEdit} />
         </>
       )}
 
       {newProjectOpen && <NewProjectModal onClose={() => setNewProjectOpen(false)} onCreate={handleCreateProject} />}
       {modal && (
         <CardModal type={modal.type} card={modal.card} onClose={() => setModal(null)} onSave={handleSaveCard} onDelete={handleDeleteCard} />
+      )}
+      {sceneModal && (
+        <SceneModal
+          scene={sceneModal}
+          characters={characters}
+          locations={locations}
+          onClose={() => setSceneModal(null)}
+          onSave={handleSaveScene}
+          onDelete={handleDeleteScene}
+        />
       )}
     </div>
   );
