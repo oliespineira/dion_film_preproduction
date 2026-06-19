@@ -15,6 +15,7 @@ import ShotModal from "./components/ShotModal";
 import ShootDayModal from "./components/ShootDayModal";
 import ScheduleSlotModal from "./components/ScheduleSlotModal";
 import CallTimeModal from "./components/CallTimeModal";
+import DepartmentDossierView from "./components/DepartmentDossierView";
 import NewProjectModal from "./components/NewProjectModal";
 import { useProjects } from "./hooks/useProjects";
 import { useBoard } from "./hooks/useBoard";
@@ -22,6 +23,7 @@ import { useScenes } from "./hooks/useScenes";
 import { useShots } from "./hooks/useShots";
 import { useShootDays } from "./hooks/useShootDays";
 import { useCallSheet } from "./hooks/useCallSheet";
+import { useReferencePhotos } from "./hooks/useReferencePhotos";
 import {
   blankCharacter,
   blankLocation,
@@ -45,6 +47,8 @@ function MainApp() {
   const [dayModal, setDayModal] = useState(null);
   const [slotModal, setSlotModal] = useState(null);
   const [callTimeModal, setCallTimeModal] = useState(null);
+  const [selectedDepartment, setSelectedDepartment] = useState("Arte");
+  const [selectedSceneForDossier, setSelectedSceneForDossier] = useState(null);
   const [newProjectOpen, setNewProjectOpen] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -89,6 +93,19 @@ function MainApp() {
     deleteCallTime,
     reorderCallTime,
   } = useCallSheet(selectedDayId, activeId);
+
+  const { shots: dossierShots, loading: loadingDossierShots } = useShots(selectedSceneForDossier, activeId);
+
+  const {
+    photos: allPhotos,
+    loading: loadingPhotos,
+    uploading: uploadingPhoto,
+    error: photosError,
+    uploadPhoto,
+    deletePhoto,
+  } = useReferencePhotos(activeId);
+
+  const departmentPhotos = allPhotos.filter((p) => p.department === selectedDepartment);
 
   async function handleCreateProject(name) {
     const proj = await createProject(name);
@@ -225,6 +242,14 @@ function MainApp() {
     setCallTimeModal(null);
   }
 
+  async function handleUpdateSceneField(sceneId, field, value) {
+    await saveScene({ id: sceneId, [field]: value });
+  }
+
+  async function handleUploadPhoto(file, { caption, sceneId }) {
+    await uploadPhoto(file, { department: selectedDepartment, sceneId, caption });
+  }
+
   const activeProject = projects.find((p) => p.id === activeId);
 
   return (
@@ -232,8 +257,10 @@ function MainApp() {
       <Header subtitle={activeProject ? "Fichas de personajes y localizaciones" : null} />
       <ProjectTabs projects={projects} activeId={activeId} onSelect={setActiveId} onNew={() => setNewProjectOpen(true)} />
 
-      {(projectsError || boardError || scenesError || shotsError || daysError || sheetError) && (
-        <div className="error-banner">{projectsError || boardError || scenesError || shotsError || daysError || sheetError}</div>
+      {(projectsError || boardError || scenesError || shotsError || daysError || sheetError || photosError) && (
+        <div className="error-banner">
+          {projectsError || boardError || scenesError || shotsError || daysError || sheetError || photosError}
+        </div>
       )}
 
       {loadingProjects ? (
@@ -291,7 +318,7 @@ function MainApp() {
               onAdd={openNewShot}
               onReorder={reorderShot}
             />
-          ) : (
+          ) : view === "callsheet" ? (
             <CallSheetView
               projectName={activeProject?.name}
               days={days}
@@ -311,6 +338,22 @@ function MainApp() {
               onAddCallTime={openNewCallTime}
               onEditCallTime={openEditCallTime}
               onReorderCallTime={reorderCallTime}
+            />
+          ) : (
+            <DepartmentDossierView
+              department={selectedDepartment}
+              onSelectDepartment={setSelectedDepartment}
+              scenes={scenes}
+              shots={dossierShots}
+              loadingShots={loadingDossierShots}
+              selectedSceneForShots={selectedSceneForDossier}
+              onSelectSceneForShots={setSelectedSceneForDossier}
+              onUpdateSceneField={handleUpdateSceneField}
+              photos={departmentPhotos}
+              loadingPhotos={loadingPhotos}
+              uploadingPhoto={uploadingPhoto}
+              onUploadPhoto={handleUploadPhoto}
+              onDeletePhoto={deletePhoto}
             />
           )}
         </>

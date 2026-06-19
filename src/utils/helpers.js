@@ -108,3 +108,13 @@ export const ROLE_TYPES = ["Actor", "Equipo técnico", "Equipo artístico"];
 export function blankCallTime() {
   return { person_name: "", role_type: "Actor", character_id: "", call_time: "", notes: "" };
 }
+
+export const DEPARTMENTS = [
+  { key: "Arte", color: "#8e5ea8", kind: "scene-fields", fields: [{ field: "set_design", label: "Escenografía" }, { field: "props", label: "Atrezo" }] },
+  { key: "Vestuario", color: "#b5651d", kind: "scene-fields", fields: [{ field: "wardrobe", label: "Vestuario" }] },
+  { key: "Maquillaje", color: "#d77a9e", kind: "scene-fields", fields: [{ field: "makeup_hair", label: "Maquillaje y peluquería" }] },
+  { key: "Fotografía", color: "#4a7fb5", kind: "shots" },
+  { key: "Sonido", color: "#4a9d6b", kind: "scene-fields", fields: [{ field: "sound_notes", label: "Necesidades de sonido" }] },
+  { key: "Producción", color: "#6b6b6b", kind: "scene-fields", fields: [{ field: "production_notes", label: "Notas de producción" }] },
+  { key: "Dirección", color: "#b23a2e", kind: "scene-fields", fields: [{ field: "director_notes", label: "Notas de dirección" }] },
+];
