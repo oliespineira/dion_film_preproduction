@@ -3,6 +3,7 @@ import SynopsisEditor from "./SynopsisEditor";
 import ScreenplayEditor from "./ScreenplayEditor";
 
 export default function WritingView({
+  projectName,
   characters,
   synopsisDrafts,
   loadingSynopsis,
@@ -38,6 +39,7 @@ export default function WritingView({
           drafts={screenplayDrafts}
           loading={loadingScreenplay}
           characters={characters}
+          projectName={projectName}
           onCreateDraft={onCreateScreenplayDraft}
           onDeleteDraft={onDeleteScreenplayDraft}
         />

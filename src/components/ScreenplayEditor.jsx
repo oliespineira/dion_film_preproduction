@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
-import { Save, Trash2, Loader2 } from "lucide-react";
+import { Save, Trash2, Loader2, FileDown } from "lucide-react";
 import { ELEMENT_LABELS, NEXT_TYPE_ON_ENTER, nextElementType, blankElement } from "../utils/helpers";
+import { exportScreenplayPdf } from "../utils/exportScreenplayPdf";
 
 function formatDateTime(iso) {
   const d = new Date(iso);
@@ -11,7 +12,7 @@ function formatDateTime(iso) {
   );
 }
 
-export default function ScreenplayEditor({ drafts, loading, characters, onCreateDraft, onDeleteDraft }) {
+export default function ScreenplayEditor({ drafts, loading, characters, projectName, onCreateDraft, onDeleteDraft }) {
   const [selectedId, setSelectedId] = useState(null);
   const [elements, setElements] = useState([blankElement("scene_heading")]);
   const [focusedIndex, setFocusedIndex] = useState(0);
@@ -107,6 +108,10 @@ export default function ScreenplayEditor({ drafts, loading, characters, onCreate
     if (created) setSelectedId(created.id);
   }
 
+  function handleExportPdf() {
+    exportScreenplayPdf({ projectName, label: selected?.label, elements });
+  }
+
   const focusedType = elements[focusedIndex]?.type;
 
   return (
@@ -188,6 +193,9 @@ export default function ScreenplayEditor({ drafts, loading, characters, onCreate
           {selected && (
             <span className="muted-note">Editando una copia de "{selected.label}" — al guardar se crea un borrador nuevo.</span>
           )}
+          <button className="btn-secondary" onClick={handleExportPdf}>
+            <FileDown size={14} /> Exportar PDF
+          </button>
           <button className="btn-primary" disabled={saving} onClick={handleSave}>
             <Save size={14} /> {saving ? "Guardando…" : "Guardar como nuevo borrador"}
           </button>

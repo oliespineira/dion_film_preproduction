@@ -359,6 +359,7 @@ function MainApp() {
 
           {view === "writing" ? (
             <WritingView
+              projectName={activeProject?.name}
               characters={characters}
               synopsisDrafts={synopsisDrafts}
               loadingSynopsis={loadingSynopsis}
