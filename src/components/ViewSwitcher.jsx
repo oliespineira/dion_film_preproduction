@@ -1,8 +1,11 @@
-import { PanelsTopLeft, Table2, Clapperboard, CalendarClock, FolderOpen } from "lucide-react";
+import { PanelsTopLeft, Table2, Clapperboard, CalendarClock, FolderOpen, FileText } from "lucide-react";
 
 export default function ViewSwitcher({ view, setView }) {
   return (
     <div className="view-switcher">
+      <button className={view === "writing" ? "view-btn active" : "view-btn"} onClick={() => setView("writing")}>
+        <FileText size={14} /> Guion
+      </button>
       <button className={view === "board" ? "view-btn active" : "view-btn"} onClick={() => setView("board")}>
         <PanelsTopLeft size={14} /> Tablero
       </button>

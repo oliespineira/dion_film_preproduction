@@ -16,6 +16,7 @@ import ShootDayModal from "./components/ShootDayModal";
 import ScheduleSlotModal from "./components/ScheduleSlotModal";
 import CallTimeModal from "./components/CallTimeModal";
 import DepartmentDossierView from "./components/DepartmentDossierView";
+import WritingView from "./components/WritingView";
 import NewProjectModal from "./components/NewProjectModal";
 import { useProjects } from "./hooks/useProjects";
 import { useBoard } from "./hooks/useBoard";
@@ -24,6 +25,8 @@ import { useShots } from "./hooks/useShots";
 import { useShootDays } from "./hooks/useShootDays";
 import { useCallSheet } from "./hooks/useCallSheet";
 import { useReferencePhotos } from "./hooks/useReferencePhotos";
+import { useSynopsisDrafts } from "./hooks/useSynopsisDrafts";
+import { useScreenplayDrafts } from "./hooks/useScreenplayDrafts";
 import {
   blankCharacter,
   blankLocation,
@@ -106,6 +109,22 @@ function MainApp() {
   } = useReferencePhotos(activeId);
 
   const departmentPhotos = allPhotos.filter((p) => p.department === selectedDepartment);
+
+  const {
+    drafts: synopsisDrafts,
+    loading: loadingSynopsis,
+    error: synopsisError,
+    createDraft: createSynopsisDraft,
+    deleteDraft: deleteSynopsisDraft,
+  } = useSynopsisDrafts(activeId);
+
+  const {
+    drafts: screenplayDrafts,
+    loading: loadingScreenplay,
+    error: screenplayError,
+    createDraft: createScreenplayDraft,
+    deleteDraft: deleteScreenplayDraft,
+  } = useScreenplayDrafts(activeId);
 
   async function handleCreateProject(name) {
     const proj = await createProject(name);
@@ -257,9 +276,9 @@ function MainApp() {
       <Header subtitle={activeProject ? "Fichas de personajes y localizaciones" : null} />
       <ProjectTabs projects={projects} activeId={activeId} onSelect={setActiveId} onNew={() => setNewProjectOpen(true)} />
 
-      {(projectsError || boardError || scenesError || shotsError || daysError || sheetError || photosError) && (
+      {(projectsError || boardError || scenesError || shotsError || daysError || sheetError || photosError || synopsisError || screenplayError) && (
         <div className="error-banner">
-          {projectsError || boardError || scenesError || shotsError || daysError || sheetError || photosError}
+          {projectsError || boardError || scenesError || shotsError || daysError || sheetError || photosError || synopsisError || screenplayError}
         </div>
       )}
 
@@ -278,7 +297,19 @@ function MainApp() {
         <>
           <ViewSwitcher view={view} setView={setView} />
 
-          {view === "board" ? (
+          {view === "writing" ? (
+            <WritingView
+              characters={characters}
+              synopsisDrafts={synopsisDrafts}
+              loadingSynopsis={loadingSynopsis}
+              onCreateSynopsisDraft={createSynopsisDraft}
+              onDeleteSynopsisDraft={deleteSynopsisDraft}
+              screenplayDrafts={screenplayDrafts}
+              loadingScreenplay={loadingScreenplay}
+              onCreateScreenplayDraft={createScreenplayDraft}
+              onDeleteScreenplayDraft={deleteScreenplayDraft}
+            />
+          ) : view === "board" ? (
             <>
               <Toolbar
                 filter={filter}

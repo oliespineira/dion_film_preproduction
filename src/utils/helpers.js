@@ -118,3 +118,35 @@ export const DEPARTMENTS = [
   { key: "Producción", color: "#6b6b6b", kind: "scene-fields", fields: [{ field: "production_notes", label: "Notas de producción" }] },
   { key: "Dirección", color: "#b23a2e", kind: "scene-fields", fields: [{ field: "director_notes", label: "Notas de dirección" }] },
 ];
+
+// ---------- screenplay editor ----------
+
+export const ELEMENT_TYPES = ["scene_heading", "action", "character", "parenthetical", "dialogue", "transition"];
+
+export const ELEMENT_LABELS = {
+  scene_heading: "Encabezado de escena",
+  action: "Acción",
+  character: "Personaje",
+  parenthetical: "Acotación",
+  dialogue: "Diálogo",
+  transition: "Transición",
+};
+
+export const NEXT_TYPE_ON_ENTER = {
+  scene_heading: "action",
+  action: "action",
+  character: "dialogue",
+  parenthetical: "dialogue",
+  dialogue: "character",
+  transition: "scene_heading",
+};
+
+export function nextElementType(type, direction = 1) {
+  const idx = ELEMENT_TYPES.indexOf(type);
+  const len = ELEMENT_TYPES.length;
+  return ELEMENT_TYPES[(idx + direction + len) % len];
+}
+
+export function blankElement(type = "action", text = "") {
+  return { id: crypto.randomUUID ? crypto.randomUUID() : "el-" + Math.random().toString(36).slice(2), type, text };
+}
