@@ -8,6 +8,7 @@ import Toolbar from "./components/Toolbar";
 import Board from "./components/Board";
 import BreakdownTable from "./components/BreakdownTable";
 import ShotlistView from "./components/ShotlistView";
+import StoryboardView from "./components/StoryboardView";
 import CallSheetView from "./components/CallSheetView";
 import CardModal from "./components/CardModal";
 import SceneModal from "./components/SceneModal";
@@ -25,6 +26,7 @@ import { useShots } from "./hooks/useShots";
 import { useShootDays } from "./hooks/useShootDays";
 import { useCallSheet } from "./hooks/useCallSheet";
 import { useReferencePhotos } from "./hooks/useReferencePhotos";
+import { useStoryboardFrames } from "./hooks/useStoryboardFrames";
 import { useSynopsisDrafts } from "./hooks/useSynopsisDrafts";
 import { useScreenplayDrafts } from "./hooks/useScreenplayDrafts";
 import {
@@ -52,6 +54,8 @@ function MainApp() {
   const [callTimeModal, setCallTimeModal] = useState(null);
   const [selectedDepartment, setSelectedDepartment] = useState("Arte");
   const [selectedSceneForDossier, setSelectedSceneForDossier] = useState(null);
+  const [selectedSceneForStoryboard, setSelectedSceneForStoryboard] = useState(null);
+  const [selectedShotForStoryboard, setSelectedShotForStoryboard] = useState(null);
   const [newProjectOpen, setNewProjectOpen] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -98,6 +102,17 @@ function MainApp() {
   } = useCallSheet(selectedDayId, activeId);
 
   const { shots: dossierShots, loading: loadingDossierShots } = useShots(selectedSceneForDossier, activeId);
+  const { shots: storyboardShots, loading: loadingStoryboardShots } = useShots(selectedSceneForStoryboard, activeId);
+
+  const {
+    frames: storyboardFrames,
+    loading: loadingStoryboardFrames,
+    uploading: uploadingStoryboardFrame,
+    error: storyboardError,
+    uploadFrame,
+    deleteFrame: deleteStoryboardFrame,
+    reorder: reorderStoryboardFrame,
+  } = useStoryboardFrames(selectedShotForStoryboard, activeId);
 
   const {
     photos: allPhotos,
@@ -269,6 +284,17 @@ function MainApp() {
     await uploadPhoto(file, { department: selectedDepartment, sceneId, caption });
   }
 
+  function selectSceneForStoryboard(sceneId) {
+    setSelectedSceneForStoryboard(sceneId);
+    setSelectedShotForStoryboard(null);
+  }
+  async function handleUploadStoryboardFile(file) {
+    await uploadFrame(file);
+  }
+  async function handleUploadStoryboardDrawing(blob) {
+    await uploadFrame(blob);
+  }
+
   const activeProject = projects.find((p) => p.id === activeId);
 
   return (
@@ -276,9 +302,27 @@ function MainApp() {
       <Header subtitle={activeProject ? "Fichas de personajes y localizaciones" : null} />
       <ProjectTabs projects={projects} activeId={activeId} onSelect={setActiveId} onNew={() => setNewProjectOpen(true)} />
 
-      {(projectsError || boardError || scenesError || shotsError || daysError || sheetError || photosError || synopsisError || screenplayError) && (
+      {(projectsError ||
+        boardError ||
+        scenesError ||
+        shotsError ||
+        daysError ||
+        sheetError ||
+        photosError ||
+        synopsisError ||
+        screenplayError ||
+        storyboardError) && (
         <div className="error-banner">
-          {projectsError || boardError || scenesError || shotsError || daysError || sheetError || photosError || synopsisError || screenplayError}
+          {projectsError ||
+            boardError ||
+            scenesError ||
+            shotsError ||
+            daysError ||
+            sheetError ||
+            photosError ||
+            synopsisError ||
+            screenplayError ||
+            storyboardError}
         </div>
       )}
 
@@ -348,6 +392,23 @@ function MainApp() {
               onOpen={openEditShot}
               onAdd={openNewShot}
               onReorder={reorderShot}
+            />
+          ) : view === "storyboard" ? (
+            <StoryboardView
+              scenes={scenes}
+              selectedSceneId={selectedSceneForStoryboard}
+              onSelectScene={selectSceneForStoryboard}
+              shots={storyboardShots}
+              loadingShots={loadingStoryboardShots}
+              selectedShotId={selectedShotForStoryboard}
+              onSelectShot={setSelectedShotForStoryboard}
+              frames={storyboardFrames}
+              loadingFrames={loadingStoryboardFrames}
+              uploadingFrame={uploadingStoryboardFrame}
+              onUploadFile={handleUploadStoryboardFile}
+              onUploadDrawing={handleUploadStoryboardDrawing}
+              onDeleteFrame={deleteStoryboardFrame}
+              onReorderFrame={reorderStoryboardFrame}
             />
           ) : view === "callsheet" ? (
             <CallSheetView

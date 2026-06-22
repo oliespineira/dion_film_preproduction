@@ -1,4 +1,4 @@
-import { PanelsTopLeft, Table2, Clapperboard, CalendarClock, FolderOpen, FileText } from "lucide-react";
+import { PanelsTopLeft, Table2, Clapperboard, CalendarClock, FolderOpen, FileText, PenTool } from "lucide-react";
 
 export default function ViewSwitcher({ view, setView }) {
   return (
@@ -14,6 +14,9 @@ export default function ViewSwitcher({ view, setView }) {
       </button>
       <button className={view === "shotlist" ? "view-btn active" : "view-btn"} onClick={() => setView("shotlist")}>
         <Clapperboard size={14} /> Guion técnico
+      </button>
+      <button className={view === "storyboard" ? "view-btn active" : "view-btn"} onClick={() => setView("storyboard")}>
+        <PenTool size={14} /> Storyboard
       </button>
       <button className={view === "callsheet" ? "view-btn active" : "view-btn"} onClick={() => setView("callsheet")}>
         <CalendarClock size={14} /> Citaciones
