@@ -150,3 +150,25 @@ export function nextElementType(type, direction = 1) {
 export function blankElement(type = "action", text = "") {
   return { id: crypto.randomUUID ? crypto.randomUUID() : "el-" + Math.random().toString(36).slice(2), type, text };
 }
+
+// ---------- lighting plan diagram editor ----------
+
+export const FIXTURE_TYPES = [
+  { key: "fresnel", label: "Fresnel", color: "#e8b339", hasBeam: true },
+  { key: "softbox", label: "Softbox", color: "#e8b339", hasBeam: true },
+  { key: "led_panel", label: "Panel LED", color: "#5aa9e6", hasBeam: true },
+  { key: "par", label: "PAR", color: "#e8b339", hasBeam: true },
+  { key: "practical", label: "Práctico", color: "#e8b339", hasBeam: false },
+  { key: "reflector", label: "Reflector", color: "#b8b8b8", hasBeam: true },
+  { key: "flag", label: "Bandera/Corta", color: "#2b2420", hasBeam: false },
+  { key: "camera", label: "Cámara", color: "#2b2420", hasBeam: true },
+  { key: "actor", label: "Actor/Talento", color: "#b23a2e", hasBeam: false },
+];
+
+function uid() {
+  return crypto.randomUUID ? crypto.randomUUID() : "f-" + Math.random().toString(36).slice(2);
+}
+
+export function blankFixture(type) {
+  return { id: uid(), type, x: 50, y: 50, rotation: 0, label: "" };
+}

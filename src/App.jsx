@@ -9,6 +9,7 @@ import Board from "./components/Board";
 import BreakdownTable from "./components/BreakdownTable";
 import ShotlistView from "./components/ShotlistView";
 import StoryboardView from "./components/StoryboardView";
+import LightingPlanView from "./components/LightingPlanView";
 import CallSheetView from "./components/CallSheetView";
 import CardModal from "./components/CardModal";
 import SceneModal from "./components/SceneModal";
@@ -27,6 +28,7 @@ import { useShootDays } from "./hooks/useShootDays";
 import { useCallSheet } from "./hooks/useCallSheet";
 import { useReferencePhotos } from "./hooks/useReferencePhotos";
 import { useStoryboardFrames } from "./hooks/useStoryboardFrames";
+import { useLightingPlans } from "./hooks/useLightingPlans";
 import { useSynopsisDrafts } from "./hooks/useSynopsisDrafts";
 import { useScreenplayDrafts } from "./hooks/useScreenplayDrafts";
 import {
@@ -56,6 +58,7 @@ function MainApp() {
   const [selectedSceneForDossier, setSelectedSceneForDossier] = useState(null);
   const [selectedSceneForStoryboard, setSelectedSceneForStoryboard] = useState(null);
   const [selectedShotForStoryboard, setSelectedShotForStoryboard] = useState(null);
+  const [selectedSceneForLighting, setSelectedSceneForLighting] = useState(null);
   const [newProjectOpen, setNewProjectOpen] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -113,6 +116,17 @@ function MainApp() {
     deleteFrame: deleteStoryboardFrame,
     reorder: reorderStoryboardFrame,
   } = useStoryboardFrames(selectedShotForStoryboard, activeId);
+
+  const {
+    plans: lightingPlans,
+    loading: loadingLighting,
+    saving: savingLighting,
+    error: lightingError,
+    createImagePlan: createLightingImagePlan,
+    createDiagramPlan: createLightingDiagramPlan,
+    updateDiagramPlan: updateLightingDiagramPlan,
+    deletePlan: deleteLightingPlan,
+  } = useLightingPlans(selectedSceneForLighting, activeId);
 
   const {
     photos: allPhotos,
@@ -311,7 +325,8 @@ function MainApp() {
         photosError ||
         synopsisError ||
         screenplayError ||
-        storyboardError) && (
+        storyboardError ||
+        lightingError) && (
         <div className="error-banner">
           {projectsError ||
             boardError ||
@@ -322,7 +337,8 @@ function MainApp() {
             photosError ||
             synopsisError ||
             screenplayError ||
-            storyboardError}
+            storyboardError ||
+            lightingError}
         </div>
       )}
 
@@ -409,6 +425,19 @@ function MainApp() {
               onUploadDrawing={handleUploadStoryboardDrawing}
               onDeleteFrame={deleteStoryboardFrame}
               onReorderFrame={reorderStoryboardFrame}
+            />
+          ) : view === "lighting" ? (
+            <LightingPlanView
+              scenes={scenes}
+              selectedSceneId={selectedSceneForLighting}
+              onSelectScene={setSelectedSceneForLighting}
+              plans={lightingPlans}
+              loading={loadingLighting}
+              saving={savingLighting}
+              onCreateImagePlan={createLightingImagePlan}
+              onCreateDiagramPlan={createLightingDiagramPlan}
+              onUpdateDiagramPlan={updateLightingDiagramPlan}
+              onDeletePlan={deleteLightingPlan}
             />
           ) : view === "callsheet" ? (
             <CallSheetView

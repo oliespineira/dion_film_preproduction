@@ -302,3 +302,41 @@ table.shotlist { min-width: 980px; }
 .tool-btn.active { background: var(--accent); color: var(--paper); border-color: var(--accent); }
 
 .drawing-canvas { touch-action: none; border-radius: 4px; border: 1px solid #cbb98f; cursor: crosshair; width: 100%; max-width: 640px; aspect-ratio: 16 / 9; display: block; }
+
+/* ---------- lighting plan module ---------- */
+
+.lighting-card { cursor: pointer; }
+.diagram-thumb { width: 100%; height: 120px; border-radius: 3px; border: 1px solid #d9c9a8; background-color: #efe9da; background-size: cover; background-position: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: var(--ink-soft); font-size: 0.72rem; }
+
+.diagram-sheet { max-width: 760px; }
+
+.fixture-palette { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; padding: 10px; background: #f1ead9; border-radius: 4px; }
+.palette-btn { display: flex; flex-direction: column; align-items: center; gap: 2px; background: var(--paper); border: 1px solid #d9c9a8; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 0.62rem; color: var(--ink-soft); width: 60px; }
+.palette-btn svg { width: 26px; height: 26px; }
+.palette-upload { position: relative; justify-content: center; }
+.palette-upload input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+
+.diagram-canvas {
+  position: relative;
+  width: 100%;
+  height: 420px;
+  border-radius: 4px;
+  border: 1px solid #cbb98f;
+  background-color: #fbf8f1;
+  background-size: cover;
+  background-position: center;
+  background-image:
+    linear-gradient(0deg, rgba(0,0,0,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px);
+  background-size: 24px 24px;
+  touch-action: none;
+  overflow: hidden;
+}
+
+.fixture-token { position: absolute; transform: translate(-50%, -50%); cursor: grab; display: flex; flex-direction: column; align-items: center; }
+.fixture-token.selected svg { filter: drop-shadow(0 0 0 2px var(--accent)); }
+.fixture-token.selected { outline: 1px dashed var(--accent); border-radius: 50%; }
+.fixture-label { font-size: 0.62rem; background: rgba(255,255,255,0.85); padding: 0 4px; border-radius: 2px; margin-top: -4px; white-space: nowrap; }
+
+.fixture-inspector { display: flex; align-items: center; gap: 8px; margin-top: 10px; padding: 8px 10px; background: #f1ead9; border-radius: 4px; flex-wrap: wrap; }
+.fixture-label-input { flex: 1; min-width: 160px; }
