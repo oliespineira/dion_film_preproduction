@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { X } from "lucide-react";
 
-export default function SceneModal({ scene, characters, locations, onClose, onSave, onDelete }) {
+export default function SceneModal({ scene, characters, locations, onClose, onSave, onDelete, readOnly = false }) {
   const isNew = !scene.id;
   const [form, setForm] = useState(scene);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -181,22 +181,28 @@ export default function SceneModal({ scene, characters, locations, onClose, onSa
         </label>
 
         <div className="modal-actions">
-          <button className="btn-primary" disabled={saving} onClick={handleSave}>
-            {saving ? "Guardando…" : "Guardar"}
-          </button>
-          {!isNew && !confirmDelete && (
-            <button className="link-danger" onClick={() => setConfirmDelete(true)}>
-              Eliminar escena
-            </button>
-          )}
-          {confirmDelete && (
-            <span className="confirm-inline">
-              ¿Seguro?{" "}
-              <button className="link-danger" onClick={onDelete}>
-                Sí
-              </button>{" "}
-              <button onClick={() => setConfirmDelete(false)}>No</button>
-            </span>
+          {readOnly ? (
+            <span className="muted-note">Solo lectura — no puedes editar esta escena.</span>
+          ) : (
+            <>
+              <button className="btn-primary" disabled={saving} onClick={handleSave}>
+                {saving ? "Guardando…" : "Guardar"}
+              </button>
+              {!isNew && !confirmDelete && (
+                <button className="link-danger" onClick={() => setConfirmDelete(true)}>
+                  Eliminar escena
+                </button>
+              )}
+              {confirmDelete && (
+                <span className="confirm-inline">
+                  ¿Seguro?{" "}
+                  <button className="link-danger" onClick={onDelete}>
+                    Sí
+                  </button>{" "}
+                  <button onClick={() => setConfirmDelete(false)}>No</button>
+                </span>
+              )}
+            </>
           )}
         </div>
       </div>

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "../lib/supabaseClient";
 import { useAuth } from "../context/AuthContext";
+import { useRealtimeRefresh } from "./useRealtimeRefresh";
 
 export function useBoard(projectId) {
   const { user } = useAuth();
@@ -31,6 +32,9 @@ export function useBoard(projectId) {
   useEffect(() => {
     load();
   }, [load]);
+
+  useRealtimeRefresh("characters", "project_id", projectId, load);
+  useRealtimeRefresh("locations", "project_id", projectId, load);
 
   async function saveCharacter(form) {
     const payload = { ...form, project_id: projectId, owner_id: user.id };

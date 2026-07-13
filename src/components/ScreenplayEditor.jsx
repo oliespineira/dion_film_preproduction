@@ -12,7 +12,7 @@ function formatDateTime(iso) {
   );
 }
 
-export default function ScreenplayEditor({ drafts, loading, characters, projectName, onCreateDraft, onDeleteDraft }) {
+export default function ScreenplayEditor({ drafts, loading, characters, projectName, onCreateDraft, onDeleteDraft, canEdit = true }) {
   const [selectedId, setSelectedId] = useState(null);
   const [elements, setElements] = useState([blankElement("scene_heading")]);
   const [focusedIndex, setFocusedIndex] = useState(0);
@@ -117,9 +117,11 @@ export default function ScreenplayEditor({ drafts, loading, characters, projectN
   return (
     <div className="writing-layout">
       <div className="draft-sidebar">
-        <button className="btn-secondary draft-new-btn" onClick={startNew}>
-          + Nuevo borrador
-        </button>
+        {canEdit && (
+          <button className="btn-secondary draft-new-btn" onClick={startNew}>
+            + Nuevo borrador
+          </button>
+        )}
         {loading ? (
           <div className="board-empty">
             <Loader2 className="spin" size={18} />
@@ -176,6 +178,7 @@ export default function ScreenplayEditor({ drafts, loading, characters, projectN
                 className={`screenplay-block ${el.type}`}
                 value={el.text}
                 rows={1}
+                disabled={!canEdit}
                 onFocus={() => setFocusedIndex(idx)}
                 onInput={autoGrow}
                 onChange={(e) => {
@@ -196,9 +199,11 @@ export default function ScreenplayEditor({ drafts, loading, characters, projectN
           <button className="btn-secondary" onClick={handleExportPdf}>
             <FileDown size={14} /> Exportar PDF
           </button>
-          <button className="btn-primary" disabled={saving} onClick={handleSave}>
-            <Save size={14} /> {saving ? "Guardando…" : "Guardar como nuevo borrador"}
-          </button>
+          {canEdit && (
+            <button className="btn-primary" disabled={saving} onClick={handleSave}>
+              <Save size={14} /> {saving ? "Guardando…" : "Guardar como nuevo borrador"}
+            </button>
+          )}
         </div>
       </div>
     </div>

@@ -6,7 +6,7 @@ function truncate(text, n = 40) {
   return text.length > n ? text.slice(0, n - 1) + "…" : text;
 }
 
-export default function BreakdownTable({ scenes, loading, characters, locations, onOpen, onAdd, onReorder }) {
+export default function BreakdownTable({ scenes, loading, characters, locations, onOpen, onAdd, onReorder, canEdit = true }) {
   function locationLabel(scene) {
     if (scene.location_id) {
       const loc = locations.find((l) => l.id === scene.location_id);
@@ -24,9 +24,11 @@ export default function BreakdownTable({ scenes, loading, characters, locations,
   return (
     <div className="breakdown-section">
       <div className="breakdown-toolbar">
-        <button className="add-btn character" onClick={onAdd}>
-          <Plus size={15} /> Nueva escena
-        </button>
+        {canEdit && (
+          <button className="add-btn character" onClick={onAdd}>
+            <Plus size={15} /> Nueva escena
+          </button>
+        )}
       </div>
 
       <div className="breakdown-wrap">
@@ -84,12 +86,16 @@ export default function BreakdownTable({ scenes, loading, characters, locations,
                   <td>{scene.page_range}</td>
                   <td>{scene.eighths || ""}</td>
                   <td className="row-actions" onClick={(e) => e.stopPropagation()}>
-                    <button className="icon-btn" onClick={() => onReorder(scene.id, "up")} aria-label="Subir escena">
-                      <ChevronUp size={14} />
-                    </button>
-                    <button className="icon-btn" onClick={() => onReorder(scene.id, "down")} aria-label="Bajar escena">
-                      <ChevronDown size={14} />
-                    </button>
+                    {canEdit && (
+                      <>
+                        <button className="icon-btn" onClick={() => onReorder(scene.id, "up")} aria-label="Subir escena">
+                          <ChevronUp size={14} />
+                        </button>
+                        <button className="icon-btn" onClick={() => onReorder(scene.id, "down")} aria-label="Bajar escena">
+                          <ChevronDown size={14} />
+                        </button>
+                      </>
+                    )}
                   </td>
                 </tr>
               ))}

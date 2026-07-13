@@ -2,7 +2,7 @@ import { useState } from "react";
 import { X } from "lucide-react";
 import { FRAMING_SCALE, ANGLE_OPTIONS, MOVEMENT_OPTIONS } from "../utils/helpers";
 
-export default function ShotModal({ shot, onClose, onSave, onDelete }) {
+export default function ShotModal({ shot, onClose, onSave, onDelete, readOnly = false }) {
   const isNew = !shot.id;
   const [form, setForm] = useState(shot);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -102,22 +102,28 @@ export default function ShotModal({ shot, onClose, onSave, onDelete }) {
         </label>
 
         <div className="modal-actions">
-          <button className="btn-primary" disabled={saving} onClick={handleSave}>
-            {saving ? "Guardando…" : "Guardar"}
-          </button>
-          {!isNew && !confirmDelete && (
-            <button className="link-danger" onClick={() => setConfirmDelete(true)}>
-              Eliminar plano
-            </button>
-          )}
-          {confirmDelete && (
-            <span className="confirm-inline">
-              ¿Seguro?{" "}
-              <button className="link-danger" onClick={onDelete}>
-                Sí
-              </button>{" "}
-              <button onClick={() => setConfirmDelete(false)}>No</button>
-            </span>
+          {readOnly ? (
+            <span className="muted-note">Solo lectura — no puedes editar este plano.</span>
+          ) : (
+            <>
+              <button className="btn-primary" disabled={saving} onClick={handleSave}>
+                {saving ? "Guardando…" : "Guardar"}
+              </button>
+              {!isNew && !confirmDelete && (
+                <button className="link-danger" onClick={() => setConfirmDelete(true)}>
+                  Eliminar plano
+                </button>
+              )}
+              {confirmDelete && (
+                <span className="confirm-inline">
+                  ¿Seguro?{" "}
+                  <button className="link-danger" onClick={onDelete}>
+                    Sí
+                  </button>{" "}
+                  <button onClick={() => setConfirmDelete(false)}>No</button>
+                </span>
+              )}
+            </>
           )}
         </div>
       </div>

@@ -20,6 +20,7 @@ export default function DepartmentDossierView({
   uploadingPhoto,
   onUploadPhoto,
   onDeletePhoto,
+  canEdit = true,
 }) {
   const dept = DEPARTMENTS.find((d) => d.key === department) || DEPARTMENTS[0];
 
@@ -43,7 +44,7 @@ export default function DepartmentDossierView({
           <p>Crea alguna escena en el Desglose primero — los dossiers se organizan escena por escena.</p>
         </div>
       ) : dept.kind === "scene-fields" ? (
-        <SceneFieldsDossier dept={dept} scenes={scenes} onUpdateSceneField={onUpdateSceneField} />
+        <SceneFieldsDossier dept={dept} scenes={scenes} onUpdateSceneField={onUpdateSceneField} canEdit={canEdit} />
       ) : (
         <PhotographyDossier
           scenes={scenes}
@@ -62,12 +63,13 @@ export default function DepartmentDossierView({
         scenes={scenes}
         onUpload={onUploadPhoto}
         onDelete={onDeletePhoto}
+        canEdit={canEdit}
       />
     </div>
   );
 }
 
-function SceneFieldsDossier({ dept, scenes, onUpdateSceneField }) {
+function SceneFieldsDossier({ dept, scenes, onUpdateSceneField, canEdit }) {
   return (
     <div className="breakdown-wrap dossier-wrap">
       {scenes.map((s, i) => (
@@ -79,8 +81,9 @@ function SceneFieldsDossier({ dept, scenes, onUpdateSceneField }) {
               <textarea
                 rows={2}
                 defaultValue={s[field] || ""}
+                disabled={!canEdit}
                 onBlur={(e) => {
-                  if (e.target.value !== (s[field] || "")) onUpdateSceneField(s.id, field, e.target.value);
+                  if (canEdit && e.target.value !== (s[field] || "")) onUpdateSceneField(s.id, field, e.target.value);
                 }}
               />
             </label>

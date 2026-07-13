@@ -13,6 +13,7 @@ export default function WritingView({
   loadingScreenplay,
   onCreateScreenplayDraft,
   onDeleteScreenplayDraft,
+  canEdit = true,
 }) {
   const [tab, setTab] = useState("synopsis"); // "synopsis" | "screenplay"
 
@@ -33,6 +34,7 @@ export default function WritingView({
           loading={loadingSynopsis}
           onCreateDraft={onCreateSynopsisDraft}
           onDeleteDraft={onDeleteSynopsisDraft}
+          canEdit={canEdit}
         />
       ) : (
         <ScreenplayEditor
@@ -42,6 +44,7 @@ export default function WritingView({
           projectName={projectName}
           onCreateDraft={onCreateScreenplayDraft}
           onDeleteDraft={onDeleteScreenplayDraft}
+          canEdit={canEdit}
         />
       )}
     </div>

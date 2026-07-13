@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "../lib/supabaseClient";
 import { useAuth } from "../context/AuthContext";
+import { useRealtimeRefresh } from "./useRealtimeRefresh";
 
 const BUCKET = "reference-photos";
 
@@ -39,6 +40,8 @@ export function useLightingPlans(sceneId, projectId) {
   useEffect(() => {
     load();
   }, [load]);
+
+  useRealtimeRefresh("lighting_plans", "scene_id", sceneId, load);
 
   async function uploadToStorage(fileOrBlob, subfolder) {
     const ext = fileOrBlob.name ? fileOrBlob.name.split(".").pop() : "png";

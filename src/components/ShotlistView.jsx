@@ -6,7 +6,7 @@ function truncate(text, n = 50) {
   return text.length > n ? text.slice(0, n - 1) + "…" : text;
 }
 
-export default function ShotlistView({ scenes, selectedSceneId, onSelectScene, shots, loading, onOpen, onAdd, onReorder }) {
+export default function ShotlistView({ scenes, selectedSceneId, onSelectScene, shots, loading, onOpen, onAdd, onReorder, canEdit = true }) {
   if (scenes.length === 0) {
     return (
       <div className="breakdown-section">
@@ -40,9 +40,11 @@ export default function ShotlistView({ scenes, selectedSceneId, onSelectScene, s
       ) : (
         <>
           <div className="breakdown-toolbar">
-            <button className="add-btn character" onClick={onAdd}>
-              <Plus size={15} /> Nuevo plano
-            </button>
+            {canEdit && (
+              <button className="add-btn character" onClick={onAdd}>
+                <Plus size={15} /> Nuevo plano
+              </button>
+            )}
           </div>
 
           <div className="breakdown-wrap">
@@ -82,12 +84,16 @@ export default function ShotlistView({ scenes, selectedSceneId, onSelectScene, s
                       <td className="cell-wrap">{truncate(shot.description, 70)}</td>
                       <td>{shot.duration_seconds ? shot.duration_seconds + "s" : ""}</td>
                       <td className="row-actions" onClick={(e) => e.stopPropagation()}>
-                        <button className="icon-btn" onClick={() => onReorder(shot.id, "up")} aria-label="Subir plano">
-                          <ChevronUp size={14} />
-                        </button>
-                        <button className="icon-btn" onClick={() => onReorder(shot.id, "down")} aria-label="Bajar plano">
-                          <ChevronDown size={14} />
-                        </button>
+                        {canEdit && (
+                          <>
+                            <button className="icon-btn" onClick={() => onReorder(shot.id, "up")} aria-label="Subir plano">
+                              <ChevronUp size={14} />
+                            </button>
+                            <button className="icon-btn" onClick={() => onReorder(shot.id, "down")} aria-label="Bajar plano">
+                              <ChevronDown size={14} />
+                            </button>
+                          </>
+                        )}
                       </td>
                     </tr>
                   ))}

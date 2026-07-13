@@ -17,6 +17,7 @@ export default function StoryboardView({
   onUploadDrawing,
   onDeleteFrame,
   onReorderFrame,
+  canEdit = true,
 }) {
   const [drawOpen, setDrawOpen] = useState(false);
 
@@ -77,13 +78,17 @@ export default function StoryboardView({
           ) : (
             <>
               <div className="breakdown-toolbar">
-                <label className="add-btn character file-upload-btn">
-                  <Plus size={15} /> {uploadingFrame ? "Subiendo…" : "Subir imagen"}
-                  <input type="file" accept="image/*" onChange={handleFileChange} disabled={uploadingFrame} />
-                </label>
-                <button className="add-btn location" onClick={() => setDrawOpen(true)} disabled={uploadingFrame}>
-                  <PenTool size={15} /> Dibujar
-                </button>
+                {canEdit && (
+                  <>
+                    <label className="add-btn character file-upload-btn">
+                      <Plus size={15} /> {uploadingFrame ? "Subiendo…" : "Subir imagen"}
+                      <input type="file" accept="image/*" onChange={handleFileChange} disabled={uploadingFrame} />
+                    </label>
+                    <button className="add-btn location" onClick={() => setDrawOpen(true)} disabled={uploadingFrame}>
+                      <PenTool size={15} /> Dibujar
+                    </button>
+                  </>
+                )}
               </div>
 
               {loadingFrames ? (
@@ -101,17 +106,23 @@ export default function StoryboardView({
                     <div key={f.id} className="photo-card storyboard-card">
                       <img src={f.url} alt={f.caption || `Frame ${i + 1}`} />
                       <div className="storyboard-frame-actions">
-                        <button className="icon-btn" onClick={() => onReorderFrame(f.id, "up")} aria-label="Mover antes">
-                          <ChevronUp size={13} />
-                        </button>
+                        {canEdit && (
+                          <button className="icon-btn" onClick={() => onReorderFrame(f.id, "up")} aria-label="Mover antes">
+                            <ChevronUp size={13} />
+                          </button>
+                        )}
                         <span className="frame-index">{i + 1}</span>
-                        <button className="icon-btn" onClick={() => onReorderFrame(f.id, "down")} aria-label="Mover después">
-                          <ChevronDown size={13} />
-                        </button>
+                        {canEdit && (
+                          <button className="icon-btn" onClick={() => onReorderFrame(f.id, "down")} aria-label="Mover después">
+                            <ChevronDown size={13} />
+                          </button>
+                        )}
                       </div>
-                      <button className="photo-delete" onClick={() => onDeleteFrame(f)} aria-label="Eliminar frame">
-                        <Trash2 size={13} />
-                      </button>
+                      {canEdit && (
+                        <button className="photo-delete" onClick={() => onDeleteFrame(f)} aria-label="Eliminar frame">
+                          <Trash2 size={13} />
+                        </button>
+                      )}
                     </div>
                   ))}
                 </div>

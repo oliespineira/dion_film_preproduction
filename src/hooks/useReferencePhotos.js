@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "../lib/supabaseClient";
 import { useAuth } from "../context/AuthContext";
+import { useRealtimeRefresh } from "./useRealtimeRefresh";
 
 const BUCKET = "reference-photos";
 
@@ -34,6 +35,8 @@ export function useReferencePhotos(projectId) {
   useEffect(() => {
     load();
   }, [load]);
+
+  useRealtimeRefresh("reference_photos", "project_id", projectId, load);
 
   async function uploadPhoto(file, { department, sceneId, caption }) {
     setUploading(true);

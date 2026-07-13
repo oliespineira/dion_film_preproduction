@@ -6,7 +6,7 @@ function formatDateTime(iso) {
   return d.toLocaleDateString("es-ES", { day: "2-digit", month: "2-digit", year: "numeric" }) + " · " + d.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" });
 }
 
-export default function SynopsisEditor({ drafts, loading, onCreateDraft, onDeleteDraft }) {
+export default function SynopsisEditor({ drafts, loading, onCreateDraft, onDeleteDraft, canEdit = true }) {
   const [selectedId, setSelectedId] = useState(null);
   const [text, setText] = useState("");
   const [saving, setSaving] = useState(false);
@@ -35,9 +35,11 @@ export default function SynopsisEditor({ drafts, loading, onCreateDraft, onDelet
   return (
     <div className="writing-layout">
       <div className="draft-sidebar">
-        <button className="btn-secondary draft-new-btn" onClick={startNew}>
-          + Nuevo borrador
-        </button>
+        {canEdit && (
+          <button className="btn-secondary draft-new-btn" onClick={startNew}>
+            + Nuevo borrador
+          </button>
+        )}
         {loading ? (
           <div className="board-empty">
             <Loader2 className="spin" size={18} />
@@ -66,13 +68,16 @@ export default function SynopsisEditor({ drafts, loading, onCreateDraft, onDelet
           className="synopsis-textarea"
           value={text}
           onChange={(e) => setText(e.target.value)}
+          disabled={!canEdit}
           placeholder="Escribe aquí la sinopsis: resumen de la historia, principio y final, lo esencial del conflicto…"
         />
         <div className="writing-toolbar">
           {selected && <span className="muted-note">Editando una copia de "{selected.label}" — al guardar se crea un borrador nuevo, no se sobrescribe.</span>}
-          <button className="btn-primary" disabled={!text.trim() || saving} onClick={handleSave}>
-            <Save size={14} /> {saving ? "Guardando…" : "Guardar como nuevo borrador"}
-          </button>
+          {canEdit && (
+            <button className="btn-primary" disabled={!text.trim() || saving} onClick={handleSave}>
+              <Save size={14} /> {saving ? "Guardando…" : "Guardar como nuevo borrador"}
+            </button>
+          )}
         </div>
       </div>
     </div>

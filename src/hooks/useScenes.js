@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "../lib/supabaseClient";
 import { useAuth } from "../context/AuthContext";
+import { useRealtimeRefresh } from "./useRealtimeRefresh";
 
 export function useScenes(projectId) {
   const { user } = useAuth();
@@ -27,6 +28,8 @@ export function useScenes(projectId) {
   useEffect(() => {
     load();
   }, [load]);
+
+  useRealtimeRefresh("scenes", "project_id", projectId, load);
 
   async function saveScene(form) {
     if (form.id) {

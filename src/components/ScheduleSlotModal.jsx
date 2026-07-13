@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { X } from "lucide-react";
 
-export default function ScheduleSlotModal({ slot, scenes, onClose, onSave, onDelete }) {
+export default function ScheduleSlotModal({ slot, scenes, onClose, onSave, onDelete, readOnly = false }) {
   const isNew = !slot.id;
   const [form, setForm] = useState(slot);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -52,22 +52,28 @@ export default function ScheduleSlotModal({ slot, scenes, onClose, onSave, onDel
         </label>
 
         <div className="modal-actions">
-          <button className="btn-primary" disabled={!canSave || saving} onClick={handleSave}>
-            {saving ? "Guardando…" : "Guardar"}
-          </button>
-          {!isNew && !confirmDelete && (
-            <button className="link-danger" onClick={() => setConfirmDelete(true)}>
-              Quitar del horario
-            </button>
-          )}
-          {confirmDelete && (
-            <span className="confirm-inline">
-              ¿Seguro?{" "}
-              <button className="link-danger" onClick={onDelete}>
-                Sí
-              </button>{" "}
-              <button onClick={() => setConfirmDelete(false)}>No</button>
-            </span>
+          {readOnly ? (
+            <span className="muted-note">Solo lectura.</span>
+          ) : (
+            <>
+              <button className="btn-primary" disabled={!canSave || saving} onClick={handleSave}>
+                {saving ? "Guardando…" : "Guardar"}
+              </button>
+              {!isNew && !confirmDelete && (
+                <button className="link-danger" onClick={() => setConfirmDelete(true)}>
+                  Quitar del horario
+                </button>
+              )}
+              {confirmDelete && (
+                <span className="confirm-inline">
+                  ¿Seguro?{" "}
+                  <button className="link-danger" onClick={onDelete}>
+                    Sí
+                  </button>{" "}
+                  <button onClick={() => setConfirmDelete(false)}>No</button>
+                </span>
+              )}
+            </>
           )}
         </div>
       </div>

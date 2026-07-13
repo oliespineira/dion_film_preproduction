@@ -26,6 +26,7 @@ export default function CallSheetView({
   onAddCallTime,
   onEditCallTime,
   onReorderCallTime,
+  canEdit = true,
 }) {
   const activeDay = days.find((d) => d.id === selectedDayId);
 
@@ -77,9 +78,11 @@ export default function CallSheetView({
             {d.day_label || `Día ${i + 1}`}
           </button>
         ))}
-        <button className="day-tab day-tab-add" onClick={onNewDay}>
-          <Plus size={14} /> Nuevo día
-        </button>
+        {canEdit && (
+          <button className="day-tab day-tab-add" onClick={onNewDay}>
+            <Plus size={14} /> Nuevo día
+          </button>
+        )}
       </div>
 
       {!activeDay ? (
@@ -100,9 +103,11 @@ export default function CallSheetView({
               <button className="btn-secondary" onClick={handleExportPdf}>
                 <FileDown size={14} /> Exportar PDF
               </button>
-              <button className="icon-btn" onClick={() => onEditDay(activeDay)} aria-label="Editar día">
-                <Pencil size={15} />
-              </button>
+              {canEdit && (
+                <button className="icon-btn" onClick={() => onEditDay(activeDay)} aria-label="Editar día">
+                  <Pencil size={15} />
+                </button>
+              )}
             </div>
           </div>
 
@@ -115,9 +120,11 @@ export default function CallSheetView({
             <>
               <h3 className="section-title">Horario del día</h3>
               <div className="breakdown-toolbar">
-                <button className="add-btn character" onClick={onAddSlot}>
-                  <Plus size={15} /> Añadir escena al horario
-                </button>
+                {canEdit && (
+                  <button className="add-btn character" onClick={onAddSlot}>
+                    <Plus size={15} /> Añadir escena al horario
+                  </button>
+                )}
               </div>
               <div className="breakdown-wrap">
                 {scheduleSlots.length === 0 ? (
@@ -141,12 +148,16 @@ export default function CallSheetView({
                           <td>{sceneLabel(slot.scene_id)}</td>
                           <td className="cell-wrap">{slot.notes}</td>
                           <td className="row-actions" onClick={(e) => e.stopPropagation()}>
-                            <button className="icon-btn" onClick={() => onReorderSlot(slot.id, "up")} aria-label="Subir">
-                              <ChevronUp size={14} />
-                            </button>
-                            <button className="icon-btn" onClick={() => onReorderSlot(slot.id, "down")} aria-label="Bajar">
-                              <ChevronDown size={14} />
-                            </button>
+                            {canEdit && (
+                              <>
+                                <button className="icon-btn" onClick={() => onReorderSlot(slot.id, "up")} aria-label="Subir">
+                                  <ChevronUp size={14} />
+                                </button>
+                                <button className="icon-btn" onClick={() => onReorderSlot(slot.id, "down")} aria-label="Bajar">
+                                  <ChevronDown size={14} />
+                                </button>
+                              </>
+                            )}
                           </td>
                         </tr>
                       ))}
@@ -157,9 +168,11 @@ export default function CallSheetView({
 
               <h3 className="section-title">Citaciones</h3>
               <div className="breakdown-toolbar">
-                <button className="add-btn location" onClick={onAddCallTime}>
-                  <Plus size={15} /> Añadir citación
-                </button>
+                {canEdit && (
+                  <button className="add-btn location" onClick={onAddCallTime}>
+                    <Plus size={15} /> Añadir citación
+                  </button>
+                )}
               </div>
               <div className="breakdown-wrap">
                 {callTimes.length === 0 ? (
@@ -187,12 +200,16 @@ export default function CallSheetView({
                           <td>{characterName(c.character_id) || ""}</td>
                           <td className="cell-wrap">{c.notes}</td>
                           <td className="row-actions" onClick={(e) => e.stopPropagation()}>
-                            <button className="icon-btn" onClick={() => onReorderCallTime(c.id, "up")} aria-label="Subir">
-                              <ChevronUp size={14} />
-                            </button>
-                            <button className="icon-btn" onClick={() => onReorderCallTime(c.id, "down")} aria-label="Bajar">
-                              <ChevronDown size={14} />
-                            </button>
+                            {canEdit && (
+                              <>
+                                <button className="icon-btn" onClick={() => onReorderCallTime(c.id, "up")} aria-label="Subir">
+                                  <ChevronUp size={14} />
+                                </button>
+                                <button className="icon-btn" onClick={() => onReorderCallTime(c.id, "down")} aria-label="Bajar">
+                                  <ChevronDown size={14} />
+                                </button>
+                              </>
+                            )}
                           </td>
                         </tr>
                       ))}

@@ -1,15 +1,17 @@
 import { useState } from "react";
 import { Plus, Trash2, Loader2, Image as ImageIcon } from "lucide-react";
 
-export default function PhotoGallery({ photos, loading, uploading, scenes, onUpload, onDelete }) {
+export default function PhotoGallery({ photos, loading, uploading, scenes, onUpload, onDelete, canEdit = true }) {
   const [uploadOpen, setUploadOpen] = useState(false);
 
   return (
     <div className="photo-gallery-section">
       <div className="breakdown-toolbar">
-        <button className="add-btn character" onClick={() => setUploadOpen(true)} disabled={uploading}>
-          <Plus size={15} /> {uploading ? "Subiendo…" : "Subir foto de referencia"}
-        </button>
+        {canEdit && (
+          <button className="add-btn character" onClick={() => setUploadOpen(true)} disabled={uploading}>
+            <Plus size={15} /> {uploading ? "Subiendo…" : "Subir foto de referencia"}
+          </button>
+        )}
       </div>
 
       {loading ? (
@@ -28,9 +30,11 @@ export default function PhotoGallery({ photos, loading, uploading, scenes, onUpl
             <div key={p.id} className="photo-card">
               <img src={p.url} alt={p.caption || "Foto de referencia"} />
               {p.caption && <p className="photo-caption">{p.caption}</p>}
-              <button className="photo-delete" onClick={() => onDelete(p)} aria-label="Eliminar foto">
-                <Trash2 size={13} />
-              </button>
+              {canEdit && (
+                <button className="photo-delete" onClick={() => onDelete(p)} aria-label="Eliminar foto">
+                  <Trash2 size={13} />
+                </button>
+              )}
             </div>
           ))}
         </div>

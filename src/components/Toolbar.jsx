@@ -1,6 +1,6 @@
 import { User, MapPin } from "lucide-react";
 
-export default function Toolbar({ filter, setFilter, onAddCharacter, onAddLocation, onDeleteProject, saved }) {
+export default function Toolbar({ filter, setFilter, onAddCharacter, onAddLocation, onDeleteProject, saved, canEdit = true, isOwner = true }) {
   return (
     <div className="toolbar">
       <div className="filters">
@@ -14,19 +14,23 @@ export default function Toolbar({ filter, setFilter, onAddCharacter, onAddLocati
           Localizaciones
         </button>
       </div>
-      <div className="add-buttons">
-        <button className="add-btn character" onClick={onAddCharacter}>
-          <User size={15} /> Personaje
-        </button>
-        <button className="add-btn location" onClick={onAddLocation}>
-          <MapPin size={15} /> Localización
-        </button>
-      </div>
+      {canEdit && (
+        <div className="add-buttons">
+          <button className="add-btn character" onClick={onAddCharacter}>
+            <User size={15} /> Personaje
+          </button>
+          <button className="add-btn location" onClick={onAddLocation}>
+            <MapPin size={15} /> Localización
+          </button>
+        </div>
+      )}
       <div className="proj-actions">
         {saved && <span className="saved-pill">Guardado ✓</span>}
-        <button className="link-danger" onClick={onDeleteProject}>
-          Eliminar proyecto
-        </button>
+        {isOwner && (
+          <button className="link-danger" onClick={onDeleteProject}>
+            Eliminar proyecto
+          </button>
+        )}
       </div>
     </div>
   );

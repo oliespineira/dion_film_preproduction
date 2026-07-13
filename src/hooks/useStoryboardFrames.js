@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "../lib/supabaseClient";
 import { useAuth } from "../context/AuthContext";
+import { useRealtimeRefresh } from "./useRealtimeRefresh";
 
 const BUCKET = "reference-photos";
 
@@ -34,6 +35,8 @@ export function useStoryboardFrames(shotId, projectId) {
   useEffect(() => {
     load();
   }, [load]);
+
+  useRealtimeRefresh("storyboard_frames", "shot_id", shotId, load);
 
   async function uploadFrame(fileOrBlob, caption = "") {
     setUploading(true);

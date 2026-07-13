@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Users } from "lucide-react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import AuthScreen from "./components/AuthScreen";
 import Header from "./components/Header";
@@ -20,7 +21,9 @@ import CallTimeModal from "./components/CallTimeModal";
 import DepartmentDossierView from "./components/DepartmentDossierView";
 import WritingView from "./components/WritingView";
 import NewProjectModal from "./components/NewProjectModal";
+import ShareProjectModal from "./components/ShareProjectModal";
 import { useProjects } from "./hooks/useProjects";
+import { useProjectMembers } from "./hooks/useProjectMembers";
 import { useBoard } from "./hooks/useBoard";
 import { useScenes } from "./hooks/useScenes";
 import { useShots } from "./hooks/useShots";
@@ -42,8 +45,22 @@ import {
 } from "./utils/helpers";
 
 function MainApp() {
+  const { user } = useAuth();
   const { projects, loading: loadingProjects, error: projectsError, createProject, deleteProject } = useProjects();
   const [activeId, setActiveId] = useState(null);
+
+  const {
+    members,
+    invites,
+    role: myRole,
+    canEdit,
+    isOwner,
+    error: membersError,
+    inviteMember,
+    updateRole,
+    removeMember,
+    revokeInvite,
+  } = useProjectMembers(activeId);
   const [view, setView] = useState("board"); // "board" | "breakdown" | "shotlist"
   const [filter, setFilter] = useState("all");
   const [modal, setModal] = useState(null); // { type, card }
@@ -55,6 +72,7 @@ function MainApp() {
   const [slotModal, setSlotModal] = useState(null);
   const [callTimeModal, setCallTimeModal] = useState(null);
   const [selectedDepartment, setSelectedDepartment] = useState("Arte");
+  const [shareOpen, setShareOpen] = useState(false);
   const [selectedSceneForDossier, setSelectedSceneForDossier] = useState(null);
   const [selectedSceneForStoryboard, setSelectedSceneForStoryboard] = useState(null);
   const [selectedShotForStoryboard, setSelectedShotForStoryboard] = useState(null);
@@ -314,7 +332,14 @@ function MainApp() {
   return (
     <div className="app-shell">
       <Header subtitle={activeProject ? "Fichas de personajes y localizaciones" : null} />
-      <ProjectTabs projects={projects} activeId={activeId} onSelect={setActiveId} onNew={() => setNewProjectOpen(true)} />
+      <div className="project-tabs-row">
+        <ProjectTabs projects={projects} activeId={activeId} onSelect={setActiveId} onNew={() => setNewProjectOpen(true)} />
+        {activeId && (
+          <button className="share-btn" onClick={() => setShareOpen(true)}>
+            <Users size={14} /> {members.length > 1 ? `Compartido (${members.length})` : "Compartir"}
+          </button>
+        )}
+      </div>
 
       {(projectsError ||
         boardError ||
@@ -326,7 +351,8 @@ function MainApp() {
         synopsisError ||
         screenplayError ||
         storyboardError ||
-        lightingError) && (
+        lightingError ||
+        membersError) && (
         <div className="error-banner">
           {projectsError ||
             boardError ||
@@ -338,7 +364,8 @@ function MainApp() {
             synopsisError ||
             screenplayError ||
             storyboardError ||
-            lightingError}
+            lightingError ||
+            membersError}
         </div>
       )}
 
@@ -369,6 +396,7 @@ function MainApp() {
               loadingScreenplay={loadingScreenplay}
               onCreateScreenplayDraft={createScreenplayDraft}
               onDeleteScreenplayDraft={deleteScreenplayDraft}
+              canEdit={canEdit}
             />
           ) : view === "board" ? (
             <>
@@ -379,6 +407,8 @@ function MainApp() {
                 onAddLocation={() => openNew("location")}
                 onDeleteProject={() => setDeleteConfirm(true)}
                 saved={saved}
+                canEdit={canEdit}
+                isOwner={isOwner}
               />
               {deleteConfirm && (
                 <div className="confirm-bar">
@@ -398,6 +428,7 @@ function MainApp() {
               onOpen={openEditScene}
               onAdd={openNewScene}
               onReorder={reorder}
+              canEdit={canEdit}
             />
           ) : view === "shotlist" ? (
             <ShotlistView
@@ -409,6 +440,7 @@ function MainApp() {
               onOpen={openEditShot}
               onAdd={openNewShot}
               onReorder={reorderShot}
+              canEdit={canEdit}
             />
           ) : view === "storyboard" ? (
             <StoryboardView
@@ -426,6 +458,7 @@ function MainApp() {
               onUploadDrawing={handleUploadStoryboardDrawing}
               onDeleteFrame={deleteStoryboardFrame}
               onReorderFrame={reorderStoryboardFrame}
+              canEdit={canEdit}
             />
           ) : view === "lighting" ? (
             <LightingPlanView
@@ -439,6 +472,7 @@ function MainApp() {
               onCreateDiagramPlan={createLightingDiagramPlan}
               onUpdateDiagramPlan={updateLightingDiagramPlan}
               onDeletePlan={deleteLightingPlan}
+              canEdit={canEdit}
             />
           ) : view === "callsheet" ? (
             <CallSheetView
@@ -460,6 +494,7 @@ function MainApp() {
               onAddCallTime={openNewCallTime}
               onEditCallTime={openEditCallTime}
               onReorderCallTime={reorderCallTime}
+              canEdit={canEdit}
             />
           ) : (
             <DepartmentDossierView
@@ -476,6 +511,7 @@ function MainApp() {
               uploadingPhoto={uploadingPhoto}
               onUploadPhoto={handleUploadPhoto}
               onDeletePhoto={deletePhoto}
+              canEdit={canEdit}
             />
           )}
         </>
@@ -483,7 +519,14 @@ function MainApp() {
 
       {newProjectOpen && <NewProjectModal onClose={() => setNewProjectOpen(false)} onCreate={handleCreateProject} />}
       {modal && (
-        <CardModal type={modal.type} card={modal.card} onClose={() => setModal(null)} onSave={handleSaveCard} onDelete={handleDeleteCard} />
+        <CardModal
+          type={modal.type}
+          card={modal.card}
+          onClose={() => setModal(null)}
+          onSave={handleSaveCard}
+          onDelete={handleDeleteCard}
+          readOnly={!canEdit}
+        />
       )}
       {sceneModal && (
         <SceneModal
@@ -493,13 +536,20 @@ function MainApp() {
           onClose={() => setSceneModal(null)}
           onSave={handleSaveScene}
           onDelete={handleDeleteScene}
+          readOnly={!canEdit}
         />
       )}
       {shotModal && (
-        <ShotModal shot={shotModal} onClose={() => setShotModal(null)} onSave={handleSaveShot} onDelete={handleDeleteShot} />
+        <ShotModal
+          shot={shotModal}
+          onClose={() => setShotModal(null)}
+          onSave={handleSaveShot}
+          onDelete={handleDeleteShot}
+          readOnly={!canEdit}
+        />
       )}
       {dayModal && (
-        <ShootDayModal day={dayModal} onClose={() => setDayModal(null)} onSave={handleSaveDay} onDelete={handleDeleteDay} />
+        <ShootDayModal day={dayModal} onClose={() => setDayModal(null)} onSave={handleSaveDay} onDelete={handleDeleteDay} readOnly={!canEdit} />
       )}
       {slotModal && (
         <ScheduleSlotModal
@@ -508,6 +558,7 @@ function MainApp() {
           onClose={() => setSlotModal(null)}
           onSave={handleSaveSlot}
           onDelete={handleDeleteSlot}
+          readOnly={!canEdit}
         />
       )}
       {callTimeModal && (
@@ -517,6 +568,21 @@ function MainApp() {
           onClose={() => setCallTimeModal(null)}
           onSave={handleSaveCallTime}
           onDelete={handleDeleteCallTime}
+          readOnly={!canEdit}
+        />
+      )}
+      {shareOpen && (
+        <ShareProjectModal
+          projectName={activeProject?.name}
+          members={members}
+          invites={invites}
+          isOwner={isOwner}
+          currentUserId={user?.id}
+          onClose={() => setShareOpen(false)}
+          onInvite={inviteMember}
+          onUpdateRole={updateRole}
+          onRemoveMember={removeMember}
+          onRevokeInvite={revokeInvite}
         />
       )}
     </div>

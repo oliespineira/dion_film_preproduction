@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "../lib/supabaseClient";
 import { useAuth } from "../context/AuthContext";
+import { useRealtimeRefresh } from "./useRealtimeRefresh";
 
 export function useScreenplayDrafts(projectId) {
   const { user } = useAuth();
@@ -27,6 +28,8 @@ export function useScreenplayDrafts(projectId) {
   useEffect(() => {
     load();
   }, [load]);
+
+  useRealtimeRefresh("screenplay_drafts", "project_id", projectId, load);
 
   async function createDraft(elements, label) {
     const { data, error } = await supabase

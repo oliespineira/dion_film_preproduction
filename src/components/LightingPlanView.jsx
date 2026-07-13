@@ -14,6 +14,7 @@ export default function LightingPlanView({
   onCreateDiagramPlan,
   onUpdateDiagramPlan,
   onDeletePlan,
+  canEdit = true,
 }) {
   const [drawOpen, setDrawOpen] = useState(false);
   const [diagramTarget, setDiagramTarget] = useState(null); // null = closed, {} = new, plan = edit
@@ -47,16 +48,20 @@ export default function LightingPlanView({
       ) : (
         <>
           <div className="breakdown-toolbar">
-            <label className="add-btn character file-upload-btn">
-              <Plus size={15} /> Subir imagen
-              <input type="file" accept="image/*" onChange={handleFileChange} />
-            </label>
-            <button className="add-btn location" onClick={() => setDrawOpen(true)}>
-              <PenTool size={15} /> Dibujar a mano
-            </button>
-            <button className="add-btn" style={{ background: "#cfe0d6" }} onClick={() => setDiagramTarget({})}>
-              <LayoutGrid size={15} /> Nuevo diagrama
-            </button>
+            {canEdit && (
+              <>
+                <label className="add-btn character file-upload-btn">
+                  <Plus size={15} /> Subir imagen
+                  <input type="file" accept="image/*" onChange={handleFileChange} />
+                </label>
+                <button className="add-btn location" onClick={() => setDrawOpen(true)}>
+                  <PenTool size={15} /> Dibujar a mano
+                </button>
+                <button className="add-btn" style={{ background: "#cfe0d6" }} onClick={() => setDiagramTarget({})}>
+                  <LayoutGrid size={15} /> Nuevo diagrama
+                </button>
+              </>
+            )}
           </div>
 
           {loading ? (
@@ -71,7 +76,7 @@ export default function LightingPlanView({
           ) : (
             <div className="photo-grid">
               {plans.map((p) => (
-                <div key={p.id} className="photo-card lighting-card" onClick={() => p.kind === "diagram" && setDiagramTarget(p)}>
+                <div key={p.id} className="photo-card lighting-card" onClick={() => canEdit && p.kind === "diagram" && setDiagramTarget(p)}>
                   {p.kind === "image" ? (
                     <img src={p.url} alt={p.caption || "Planta de luces"} />
                   ) : (
@@ -81,16 +86,18 @@ export default function LightingPlanView({
                     </div>
                   )}
                   {p.caption && <p className="photo-caption">{p.caption}</p>}
-                  <button
-                    className="photo-delete"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onDeletePlan(p);
-                    }}
-                    aria-label="Eliminar plano"
-                  >
-                    <Trash2 size={13} />
-                  </button>
+                  {canEdit && (
+                    <button
+                      className="photo-delete"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDeletePlan(p);
+                      }}
+                      aria-label="Eliminar plano"
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  )}
                 </div>
               ))}
             </div>
