@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Users } from "lucide-react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import AuthScreen from "./components/AuthScreen";
+import ResetPasswordScreen from "./components/ResetPasswordScreen";
 import Header from "./components/Header";
 import ProjectTabs from "./components/ProjectTabs";
 import ViewSwitcher from "./components/ViewSwitcher";
@@ -590,7 +591,7 @@ function MainApp() {
 }
 
 function Gate() {
-  const { user, loading } = useAuth();
+  const { user, loading, passwordRecovery } = useAuth();
   if (loading) {
     return (
       <div className="app-shell">
@@ -600,6 +601,10 @@ function Gate() {
       </div>
     );
   }
+  // Checked before the normal user check: clicking the reset-password
+  // email link logs the user in automatically, but they must set a new
+  // password before reaching the board.
+  if (passwordRecovery) return <ResetPasswordScreen />;
   return user ? <MainApp /> : <AuthScreen />;
 }
 

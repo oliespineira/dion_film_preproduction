@@ -228,7 +228,7 @@ create policy "Owners can delete invites" on project_invites
 
 drop policy if exists "Users manage their own projects" on projects;
 create policy "Members can view their projects" on projects
-  for select using (is_project_member(id));
+  for select using (is_project_member(id) or auth.uid() = owner_id);
 create policy "Anyone can create a project" on projects
   for insert with check (auth.uid() = owner_id);
 create policy "Owners and editors can update project" on projects

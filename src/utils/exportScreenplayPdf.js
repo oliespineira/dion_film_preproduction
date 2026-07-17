@@ -42,21 +42,15 @@ export function exportScreenplayPdf({ projectName, label, elements }) {
   let y = MARGIN_TOP;
   doc.setFontSize(FONT_SIZE);
 
-  function ensureSpace(lines = 1) {
-    if (y + lines * LINE_HEIGHT > PAGE_H - MARGIN_BOTTOM) {
-      doc.addPage();
-      y = MARGIN_TOP;
-    }
-  }
-
   const cleanElements = (elements || []).filter((el) => (el.text || "").trim() !== "");
+
+  if (cleanElements.length === 0) {
+    doc.setFont("courier", "italic");
+    doc.text("Este guion todavía no tiene contenido.", MARGIN_LEFT, y);
+  }
 
   cleanElements.forEach((el, idx) => {
     const text = formatText(el.type, el.text);
-
-    if (el.type === "scene_heading" && idx !== 0) {
-      y += LINE_HEIGHT;
-    }
 
     doc.setFont("courier", STYLE[el.type] || "normal");
     const x = MARGIN_LEFT + (INDENT[el.type] || 0);
@@ -64,7 +58,18 @@ export function exportScreenplayPdf({ projectName, label, elements }) {
     const display = el.type === "parenthetical" ? `(${text})` : text;
     const lines = doc.splitTextToSize(display, maxWidth);
 
-    ensureSpace(lines.length);
+    // A blank line separates scene headings from what came before — but
+    // only if we're not already sitting at the top of a fresh page, or
+    // we'd leave a stray gap above the heading right after a page break.
+    let gap = el.type === "scene_heading" && idx !== 0 && y > MARGIN_TOP ? LINE_HEIGHT : 0;
+
+    if (y + gap + lines.length * LINE_HEIGHT > PAGE_H - MARGIN_BOTTOM) {
+      doc.addPage();
+      y = MARGIN_TOP;
+      gap = 0; // already at the top; no need for the separator any more
+    }
+    y += gap;
+
     lines.forEach((line) => {
       if (el.type === "transition") {
         doc.text(line, MARGIN_LEFT + CONTENT_W, y, { align: "right" });
