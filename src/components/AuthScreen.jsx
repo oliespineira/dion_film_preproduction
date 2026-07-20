@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Film } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import LavaBackground from "./LavaBackground";
 
 export default function AuthScreen() {
   const { signIn, signUp, resetPasswordForEmail } = useAuth();
@@ -41,6 +42,7 @@ export default function AuthScreen() {
   return (
     <div className="app-shell">
       <div className="auth-screen">
+        <LavaBackground />
         <div className="brand">
           <Film size={22} />
           <span>TABLERO DE PREPRODUCCIÓN</span>
